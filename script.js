@@ -3,7 +3,7 @@ const COMMANDS = {
   help:
     'Supported commands: <span class="code">about</span>, <span class="code">experience</span>, <span class="code">education</span>, <span class="code">skills</span>, <span class="code">contact</span> ,<span class="code">write_ups</span> ,<span class="code">achievements</span>,<span class="code">clear</span>',
   about:
-    "Hi this is Sayooj B Kumar. My feild of interest is Cyber security/Web Application Security <br> Member of <a href='https://bi0s.in/'><B>team bi0s</b></a> <br> CTF player",
+    "Hi this is Sayooj B Kumar. My field of interest is Cyber security/Web Application Security <br> Member of <a href='https://bi0s.in/'><B>team bi0s</b></a> <br> CTF player",
   skills:
     '<span class="code">Languages:</span> Python, Php, NodeJs, C, Cpp, Java, JavaScript<br><span class="code">Technologies:</span> Git, MySQL, Psql<br><span class="code">Frameworks:</span> React.js',
   education:
