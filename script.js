@@ -44,7 +44,7 @@ if(isMobile){
   }
 }
 for(var key in COMMANDS){
-  execute(key);
+  console.log(key);
   sleep(2);
 }
 
