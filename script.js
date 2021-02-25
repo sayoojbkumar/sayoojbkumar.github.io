@@ -38,11 +38,14 @@ console.log(isMobile);
 if(isMobile){
   alert('Sorry to inform,you are currently viewing this page in smartphone 1nf0_5h311 works fine with desktop devices');
   alert('As you are using smartphone,all commands are executed in 1nf0_5h311 automatically.Feel free to scroll :P');
-  for(const key in COMMANDS){
+  for(var key in COMMANDS){
     execute(key);
     sleep(2);
   }
-  
+}
+for(var key in COMMANDS){
+  execute(key);
+  sleep(2);
 }
 
 const execute = function executeCommand(input) {
