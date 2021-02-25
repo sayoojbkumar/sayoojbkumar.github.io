@@ -6,7 +6,8 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
 console.log(isMobile);
 
 if(isMobile){
-  alert('your device is a mobile');
+  alert('Sorry to inform,you are currently viewing this page in smartphone 1nf0_5h311 works fine with desktop devices');
+  alert('As you are using smartphone,all commands are executed in 1nf0_5h311 automatically.Feel free to scroll :P');
 }
 
 const BLACKLISTED_KEY_CODES = [ 38 ];
