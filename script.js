@@ -77,7 +77,7 @@ if(isMobile){
   alert('Sorry to inform,you are currently viewing this page in smartphone 1nf0_5h311 works fine with desktop devices');
   alert('As you are using smartphone,all commands are executed in 1nf0_5h311 automatically.Feel free to scroll :P');
   for(const key in COMMANDS_PHONE){
-    sleep(5000).then(() => {
+    sleep(2500).then(() => {
       console.log(key);
       userInput = document.getElementById("userInput");
       terminalOutput = document.getElementById("terminalOutput");
