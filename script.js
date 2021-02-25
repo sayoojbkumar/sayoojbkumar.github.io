@@ -1,7 +1,7 @@
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function sleep(sleepDuration){
+  var now = new Date().getTime();
+  while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
 }
-
 const BLACKLISTED_KEY_CODES = [ 38 ];
 const COMMANDS = {
   help:
@@ -40,7 +40,7 @@ if(isMobile){
   alert('As you are using smartphone,all commands are executed in 1nf0_5h311 automatically.Feel free to scroll :P');
   for(const key in COMMANDS){
     execute(key);
-    await sleep(2000);
+    sleep(2);
   }
   
 }
