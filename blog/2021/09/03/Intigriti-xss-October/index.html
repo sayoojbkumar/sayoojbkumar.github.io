@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Intigriti&#39;s October XSS challenge | 1n73rc3p70r-B10g | Welcome to MY Blog</title>
+
+  
+  <meta name="author" content="Sayooj B Kumar">
+  
+
+  
+  <meta name="description" content="place where i post my findings,ctf write-ups">
+  
+
+  
+  
+  <meta name="keywords" content="XSS">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Intigriti&#39;s October XSS challenge"/>
+
+  <meta property="og:site_name" content="1n73rc3p70r-B10g"/>
+
+  
+  <meta property="og:image" content="/blog/favicon.ico"/>
+  
+
+  <link href="/blog/favicon.ico" rel="icon">
+  <link rel="alternate" href="/blog/atom.xml" title="1n73rc3p70r-B10g" type="application/atom+xml">
+  <link rel="stylesheet" href="/blog/css/style.css" media="screen" type="text/css">
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/blog/">1n73rc3p70r-B10g</a>
+    </h1>
+    <p class="site-description">Welcome to MY Blog</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>Intigriti&#39;s October XSS challenge</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/blog/2021/09/03/Intigriti-xss-October/" rel="bookmark">
+        <time class="entry-date published" datetime="2021-09-02T18:30:00.000Z">
+          2021-09-03
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p><strong>tl;dr</strong></p>
+<ul>
+<li>HTML injection to XSS <code>html=&lt;/h1&gt;&lt;/div&gt;&lt;code id=intigriti&gt;&lt;b&gt;&lt;i((&#39;&gt;&amp;xss=));alert(document.domain)</code><span id="more"></span></li>
+</ul>
+<p><strong>Challenge Author:</strong> <a target="_blank" rel="noopener" href="https://twitter.com/0xTib3rius">0xTib3rius</a></p>
+<p><strong>Hosted Challenge:</strong> <a target="_blank" rel="noopener" href="https://challenge-1021.intigriti.io/challenge/challenge.php">here</a></p>
+<h2 id="Challenge-Description"><a href="#Challenge-Description" class="headerlink" title="Challenge Description"></a>Challenge Description</h2><p>Find a way to execute arbitrary javascript on this page and win Intigriti swag.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">The solution...</span><br><span class="line"></span><br><span class="line">    Should work on the latest version of Chrome and FireFox.</span><br><span class="line">    Should execute alert(document.domain).</span><br><span class="line">    Should leverage a cross site scripting vulnerability on this domain.</span><br><span class="line">    Shouldn&#x27;t be self-XSS or related to MiTM attacks.</span><br><span class="line">    Should be reported at go.intigriti.com/submit-solution.</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Solutions"><a href="#Solutions" class="headerlink" title="Solutions"></a>Solutions</h2><p>Looking into Source</p>
+<h3 id="CSP"><a href="#CSP" class="headerlink" title="CSP"></a>CSP</h3><p><code>default-src &#39;none&#39;; script-src &#39;unsafe-eval&#39; &#39;strict-dynamic&#39; &#39;nonce-f48c09cf37317ddd2191e934acf68955&#39;; style-src &#39;nonce-c89004c13cf2feff4e3fe90c26c8aec9&#39;</code></p>
+<p>here in CSP we have nonce so direct injection of script tag not possible and unsafe-eval which allows the use of eval() and similar methods for creating code from strings.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.addEventListener(<span class="string">&quot;DOMContentLoaded&quot;</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        e = <span class="string">`)]&#125;&#x27;`</span> + <span class="keyword">new</span> URL(location.href).searchParams.get(<span class="string">&quot;xss&quot;</span>);</span><br><span class="line">        c = <span class="built_in">document</span>.getElementById(<span class="string">&quot;body&quot;</span>).lastElementChild;</span><br><span class="line">        <span class="keyword">if</span> (c.id === <span class="string">&quot;intigriti&quot;</span>) &#123;</span><br><span class="line">          l = c.lastElementChild;</span><br><span class="line">          i = l.innerHTML.trim();</span><br><span class="line">          f = i.substr(i.length - <span class="number">4</span>);</span><br><span class="line">          e = f + e;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">let</span> s = <span class="built_in">document</span>.createElement(<span class="string">&quot;script&quot;</span>);</span><br><span class="line">        s.type = <span class="string">&quot;text/javascript&quot;</span>;</span><br><span class="line">        s.appendChild(<span class="built_in">document</span>.createTextNode(e));</span><br><span class="line">        <span class="built_in">document</span>.body.appendChild(s);</span><br><span class="line">      &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>When Dom contents is loaded variable <code>e </code> gets assigned with <code>)]&#125; + user input</code> and it create a script tag and appends the contents of variable <code>e</code> which means we can possibly get XSS But <code>)]&#125;</code> causes syntax error which prevents from further execution of JS.</p>
+<p>Checking the if condition it is clear that we could append contents in front of variable e <code>e = f + e;</code> but this is only possible when <code>c.id === &quot;intigriti&quot;</code>.If we are able to manipulate e as <code>((&#39;)]&#125;&#39;));alert(document.domain)</code> script get executed and we get XSS.</p>
+<p>My initial idea was to embed the whole <code>&lt;div id=&quot;container&quot;&gt;</code> using <code>&lt;img src=&#39;</code> but it failed due to <code>&lt;div class=&quot;a&quot;&gt;&#39;&quot;&lt;/div&gt;</code> where it closes the single quote .Then using <code>&lt;iframe id=&quot;intigriti&quot; srcdoc=&#39; </code>i was able to control c = document.getElementById(“body”).lastElementChild; but not l = c.lastElementChild; which was null.</p>
+<p>when my html input is <code>&lt;/h1&gt;&lt;/div&gt;&lt;code id=intigriti&gt;</code> script tag renders as <code>&lt;script type=&quot;text/javascript&quot;&gt;pan&gt;)]&#125;&#39;null&lt;/script&gt;</code> where <code>pan</code> refers to span is the last element of <code>&lt;div id=&quot;container&quot;&gt;</code></p>
+<p>when my html input is <code>&lt;/h1&gt;&lt;/div&gt;&lt;code id=intigriti&gt;&lt;b&gt;</code> the <code>&lt;div id=&quot;container&quot;&gt;</code> got rendered inside the bold tag this is because browser trying to fix unclosed tag and finally ends messing up. Now script tag rendered as <code>&lt;script type=&quot;text/javascript&quot;&gt;div&gt;)]&#125;&#39;null&lt;/script&gt;</code></p>
+<p>When i added one more tag with existing html ie <code>&lt;/h1&gt;&lt;/div&gt;&lt;code id=intigriti&gt;&lt;b&gt;&lt;i&gt;</code> script tag rendered as <code>&lt;script type=&quot;text/javascript&quot;&gt;&lt;/i&gt;)]&#125;&#39;null&lt;/script&gt;</code> now we have control over rendering script tag.</p>
+<p>This happens because <code>&lt;i&gt;</code> got rendered inside <code>&lt;b&gt;</code>  and javascript selected it as lastElementChild.</p>
+<h3 id="Payload"><a href="#Payload" class="headerlink" title="Payload:"></a>Payload:</h3><ul>
+<li><code>html=&lt;/h1&gt;&lt;/div&gt;&lt;code id=intigriti&gt;&lt;b&gt;&lt;i((&#39;&gt;</code> </li>
+<li><code>xss=));alert(document.domain);</code> </li>
+</ul>
+<h3 id="Final-Exploit"><a href="#Final-Exploit" class="headerlink" title="Final Exploit:"></a>Final Exploit:</h3><p><code>https://challenge-1021.intigriti.io/challenge/challenge.php?html=&lt;/h1&gt;&lt;/div&gt;&lt;code id=intigriti&gt;&lt;b&gt;&lt;i((&#39;&gt;&amp;xss=));alert(document.domain);</code></p>
+<h2 id="Rating"><a href="#Rating" class="headerlink" title="Rating:"></a>Rating:</h2><p>9/10</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/blog/categories/Web-Exploitation/">Web Exploitation</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/blog/tags/XSS/">XSS</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+  
+
+
+
+
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2021 Sayooj B Kumar
+    
+  </p>
+</footer>
+    
+    
+  </div>
+</div>
+</body>
+</html>
