@@ -39,6 +39,7 @@
             }
             sleep(7000).then(() => {
                     for(var j=0;j< data.length;j++){
+                        console.log(data[j].window.length)
                         if(data[j].window.length>0){
                             var s=document.getElementById("output").innerHTML
                             document.getElementById("output").innerHTML=s+'<br>'+targets[j];
