@@ -3,9 +3,18 @@
         <Title>Download Detection</Title>
     </head>
     <body>
+        <script>
+            function panik(url){
+            var img = document.createElement("img");
+            img.src = url;
+            var src = document.getElementById("header");
+            src.appendChild(img);
+        }
+        </script>
         <center>
             <h1>Download detection Using Height</h1>
             <div id="output"></div>
+            <div id="header"></div>
         </center>
         <script>
 
@@ -21,9 +30,11 @@
             console.log(window.innerHeight,screenHeight)
             if (window.innerHeight<screenHeight){
                 document.getElementById("output").innerText="Download detected"
+                panik('panik.jpeg')
             }
             else{
                 document.getElementById("output").innerText="Download Failed"
+                panik('panik.jpeg')
             }
         })    
         </script>

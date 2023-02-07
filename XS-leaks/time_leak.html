@@ -3,9 +3,18 @@
         <Title>Timing Attack</Title>
     </head>
     <body>
+        <script>
+            function panik(url){
+            var img = document.createElement("img");
+            img.src = url;
+            var src = document.getElementById("header");
+            src.appendChild(img);
+        }
+        </script>
         <center>
             <h1>Timing Attack</h1>
             <div id="output"></div>
+            <div id="header"></div>
         </center>
         <script>
         
@@ -32,6 +41,7 @@
         }
         timeing("***REMOVED***appsec/src/master/")
         timeing("https://bitbucket.org/LALALALALALALll/")
+        panik('panic.png')
         </script>
     </body>
 </html>
