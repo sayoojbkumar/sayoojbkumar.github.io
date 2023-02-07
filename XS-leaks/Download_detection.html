@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <Title>Download Detection</Title>
+    </head>
+    <body>
+        <center>
+            <h1>Download detection Using Height</h1>
+            <div id="output"></div>
+        </center>
+        <script>
+
+            function sleep (time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+
+            url="https://github.com/sayoojbkumar/1nt3rc3pt0r/archive/refs/heads/main.zip"
+            var screenHeight = window.innerHeight;
+            window.open(url,"_self");
+            
+            sleep(3000).then(() => {
+            console.log(window.innerHeight,screenHeight)
+            if (window.innerHeight<screenHeight){
+                document.getElementById("output").innerText="Download detected"
+            }
+            else{
+                document.getElementById("output").innerText="Download Failed"
+            }
+        })    
+        </script>
+    </body>
+</html>

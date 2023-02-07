@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <Title>Timing Attack</Title>
+    </head>
+    <body>
+        <center>
+            <h1>Timing Attack</h1>
+            <div id="output"></div>
+        </center>
+        <script>
+        
+        function sleep (time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+
+        function timeing(url){
+            var script = document.createElement('script');
+            script.src = url;
+            document.body.appendChild(script);
+            // Measure the initial time
+            var start = performance.now();
+
+            script.onload = () => {
+                // When the iframe loads calculate the time difference
+                var time = performance.now() - start;
+                document.getElementById("output").innerHTML=document.getElementById("output").innerHTML +`<br> It took ${time} ms to load the computing window`
+            }
+            script.onerror =() =>{
+                var time = performance.now() - start;
+                document.getElementById("output").innerHTML= document.getElementById("output").innerHTML + `<br>It took ${time} ms to load the error window`
+            }
+        }
+        timeing("***REMOVED***appsec/src/master/")
+        timeing("https://bitbucket.org/LALALALALALALll/")
+        </script>
+    </body>
+</html>
