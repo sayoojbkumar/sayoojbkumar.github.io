@@ -7,7 +7,7 @@ menu:
   Books: Books
   Movies: Movies
   Links: Links
-  About: About
+  About: about
 nav:
   all: All
   older: Older
@@ -30,7 +30,6 @@ page:
   movies-desc: Personal favorite movies recommended to everyone
   links: Links
   links-desc: Welcome to the exchange link, you can leave a message on this page
-  about: About
 pagination:
   next: Next
   prev: Prev

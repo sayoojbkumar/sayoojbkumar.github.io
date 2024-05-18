@@ -5,6 +5,7 @@ menu:
   Categories: categories  # 分类
   Tags: tags  # 标签
   Repository: repository  # github repositories
+#  Books: books  # 豆瓣书单
   About: about  # 关于
   Pwning: pwning
 
@@ -21,6 +22,7 @@ menu_icons:
 
 site:
   favicon: /images/favicon.ico
+  avatar: /images/avatar.jpg
   #manifest:
   site_verification:
 #    google:
@@ -75,8 +77,8 @@ footer:
 #  custom:
 
 profile:
-  enabled: true # Whether to show profile bar
-#  avatar: images/avatar.jpg
+  enabled: True # Whether to show profile bar
+  avatar: /images/avatar.png
   gravatar: sayoojbkumar@gmail.com # Gravatar email address, if you enable Gravatar, your avatar config will be overriden
   author: Sayooj B Kumar
   author_title: Security Engineer @Cred | CTF'ing @teambi0s

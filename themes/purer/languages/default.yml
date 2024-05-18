@@ -7,8 +7,8 @@ menu:
   Books: Books
   Pwning: pwning
   Movies: Movies
+  About: about
   Links: Links
-  About: About
 nav:
   all: All
   older: Older
@@ -33,7 +33,8 @@ page:
   movies-desc: Personal favorite movies recommended to everyone
   links: Links
   links-desc: Welcome to the exchange link, you can leave a message on this page
-  about: About
+  about: about
+  about-desc: About myself
 pagination: 
   next: Next
   prev: Prev

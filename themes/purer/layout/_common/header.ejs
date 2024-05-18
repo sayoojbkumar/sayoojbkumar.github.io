@@ -4,7 +4,7 @@
         <% const profile = theme.profile; %>
         <div class="profile sm:text-center md:px-1 lg:px-3 sm:pb-4 sm:pt-6">
             <a id="avatar" role="link" href="<%= profile.follow %>" class="inline-block lg:w-16 lg:h-16 w-8 h-8 m-2" target="_blank" rel="noopener" rel="noreferrer" >
-                <img src="<%= (profile.gravatar ? gravatar(profile.gravatar, 128) : url_for(profile.avatar)) %>" class="rounded-full" alt="avatar">
+                <img src="<%=url_for(profile.avatar)%>" class="rounded-full" alt="avatar">
             </a>
             <h2 id="name" class="hidden lg:block"><%= profile.author %></h2>
             <h3 id="title" class="hidden lg:block"><%= profile.author_title %></h3>
