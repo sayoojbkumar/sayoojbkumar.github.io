@@ -5,6 +5,7 @@ menu:
   Tags: Tags
   Repository: Repository
   Books: Books
+  Pwning: pwning
   Movies: Movies
   Links: Links
   About: About
@@ -24,6 +25,8 @@ page:
   uncategorized: Uncategorized
   repository: Repository
   douban: Douban
+  pwning: pwning
+  pwning-desc: A collection of CVEs, bounty programs, and exploits
   books: Books
   books-desc: Personal collection of books recommended to everyone
   movies: Movies
