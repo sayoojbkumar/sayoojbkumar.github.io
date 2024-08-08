@@ -30,23 +30,26 @@ sidebar: none
 ##### Got awarded with 200$ for disclosing Vulnerablity in a Private Program.
  * Socket Hijacking 
 
-##### Found SSRF in Apache Airflow
+##### Got awarded with 2,550$ for finding SSRF in Apache Airflow
  * [CVE-2023-37379](https://hackerone.com/reports/2123113)
 <br><br><br>
 
 # Common Vulnerabilities and Exposures (CVE)
 <br>
 
-##### CVE-2023-37379 | SSRF
+##### CVE-2024-6827 | HTTP Request Smuggling in Gunicorn
+* [CVE-2024-6827](https://nvd.nist.gov/vuln/detail/CVE-2024-6827)
+
+##### CVE-2023-37379 | SSRF in Apache Airflow
 * [CVE-2023-37379](https://hackerone.com/reports/2123113)
 
-##### CVE-2021-23448 | Prototype Pollution
+##### CVE-2021-23448 | Prototype Pollution Vulnerability in CONFIGHANDLER - NodeJs package
 * [CVE-2021-23448](https://security.snyk.io/vuln/SNYK-JS-CONFIGHANDLER-1564947)
 
-##### CVE-2021-23718 | SSRF Bypass
+##### CVE-2021-23718 | SSRF Bypass in SSRFAGENT - NodeJs package
 * [CVE-2021-23718](https://security.snyk.io/vuln/SNYK-JS-SSRFAGENT-1584362)
 
-##### CVE-2024-31617 | HTTP Request Smuggling 
-* [CVE-2024-31617](https://github.com/litespeedtech/openlitespeed/releases/tag/v1.8.1)
+##### CVE-2024-31617 | HTTP Request Smuggling in OpenLiteSpeed
+* [CVE-2024-31617](https://www.cve.org/CVERecord?id=CVE-2024-31617)
 <br><br><br>
 # Researches

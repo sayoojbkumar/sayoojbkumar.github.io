@@ -1,3 +1,18 @@
-# sayoojbkumar.github.io
+## To run locally
 
-test
+```
+npm install
+npm run server
+```
+
+## To create a new post
+
+```
+hexo new post "My New Post"
+```
+
+## install Hexo
+
+```
+npm install -g hexo-cli
+```
