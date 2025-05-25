@@ -89,12 +89,6 @@ Host: 172.24.10.169
 ```
 <br>
 
-### Video Poc
-<div style="position: relative; width: 100%; padding-top: 42.86%; overflow: hidden;">
-    <iframe src="https://drive.google.com/file/d/1MxB3i8Rzz9rn3H8sa7wP1YO2_aoIGGOW/preview" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="autoplay"></iframe>
-</div>
-<br>
-
 ## Fix
 
 The value of TRANSFER-ENCODING is converted into an array using a comma as the delimiter and then compared.
@@ -132,13 +126,6 @@ OpenLiteSpeed was comparing if the value of `transfer-encoding` starts with `chu
 if (strncasecmp(pCur, "chunked", 7) == 0) 
 
 ```
-<br>
-
-## POC
-
-<div style="position: relative; width: 100%; padding-top: 42.86%; overflow: hidden;">
-    <iframe src="https://drive.google.com/file/d/1v7aej_RA1lSf_l5ZcxRH2PjYniQRqNux/preview" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="autoplay"></iframe>
-</div>
 <br>
 
 ## Fix
