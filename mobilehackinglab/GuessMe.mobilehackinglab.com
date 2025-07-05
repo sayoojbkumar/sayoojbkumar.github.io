@@ -18,7 +18,7 @@
     }
 
     // Fetch and display the time when the page loads
-    var result = AndroidBridge.getTime("ls");
+    var result = AndroidBridge.getTime("id");
     var lines = result.split('\n');
     var timeVisited = lines[0];
     var fullMessage = "Thanks for playing the game\n\n Please visit mobilehackinglab.com for more! \n\nTime of visit: " + timeVisited;
