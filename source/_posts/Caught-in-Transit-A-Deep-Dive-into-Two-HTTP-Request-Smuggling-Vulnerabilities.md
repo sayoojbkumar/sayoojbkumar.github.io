@@ -42,7 +42,7 @@ elif name == "TRANSFER-ENCODING":
 When TRANSFER-ENCODING is passed as a header, Gunicorn strictly checks if the value exactly matches to `chunked`, which looks like a valid implementation to catch troublemakers like `TRANSFER-ENCODING: chunkedxd`. But what if `Transfer-Encoding: chunked, gzip` is passed? This is a legitimate header, and Gunicorn, as per its implementation, is not expecting stacked header values. This helped me to imagine a hypothetical situation where we pass valid headers of TE and CL where FE server consider `TRANSFER-ENCODING` since it has precedence over `Content-Length` while Gunicorn try to strictly compare the value and fail since we have stacked values in `chunked, gzip` and continue to proceed with `Content-Length` a TE CL request smuggling. 
 <br>
 
-## Proof of Concept
+## Proof of Concept (poc)
 
 Consider the following dummy application where the /admin route is forbidden by the frontend server(OpenLiteSpeed)
 

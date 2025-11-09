@@ -4,35 +4,68 @@ on:
   push:
     branches:
       - master  # default branch
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # If your repository depends on submodule, please see: https://github.com/actions/checkout
           submodules: recursive
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-      - name: Cache NPM dependencies
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.OS }}-npm-cache
-          restore-keys: |
-            ${{ runner.OS }}-npm-cache
-      - name: Install Dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Build Portfolio
+        working-directory: ./portfolio
+        run: |
+          npm ci
+          npm run build
+      
+      - name: Build Hexo Blog
+        run: |
+          npm ci
+          npm run build
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Prepare deployment
+        run: |
+          # Create deployment directory
+          mkdir -p deploy
+          
+          # Copy portfolio build output to root
+          cp -r portfolio/dist/* deploy/
+          
+          # Copy Hexo blog output to blogs subdirectory
+          mkdir -p deploy/blogs
+          cp -r public/* deploy/blogs/
+          
+          # Copy CNAME file if it exists (for custom domain)
+          if [ -f CNAME ]; then
+            cp CNAME deploy/
+          fi
+      
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./public
+          path: ./deploy
+  
   deploy:
     needs: build
     permissions:
