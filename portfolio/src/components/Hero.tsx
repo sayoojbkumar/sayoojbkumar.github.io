@@ -104,7 +104,7 @@ export const Hero = () => {
                   <Terminal className="w-4 h-4 mr-2" />
                   ./view_achievements.sh
                 </Button>
-                <Link to="/blog">
+                <Link to="/blogs">
                   <Button 
                     variant="outline" 
                     className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-mono"
