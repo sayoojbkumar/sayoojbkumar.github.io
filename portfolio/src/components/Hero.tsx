@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Terminal, Shield, Code2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 
 export const Hero = () => {
   const [displayText, setDisplayText] = useState("");
@@ -104,7 +103,7 @@ export const Hero = () => {
                   <Terminal className="w-4 h-4 mr-2" />
                   ./view_achievements.sh
                 </Button>
-                <Link to="/blogs/index.html">
+                <a href="/blogs/">
                   <Button 
                     variant="outline" 
                     className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-mono"
@@ -112,7 +111,7 @@ export const Hero = () => {
                     <BookOpen className="w-4 h-4 mr-2" />
                     ./read_blog.sh
                   </Button>
-                </Link>
+                </a>
                 <Button 
                   variant="outline" 
                   className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-mono"
